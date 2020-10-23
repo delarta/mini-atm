@@ -49,41 +49,32 @@ const withDrawMoney = (amount, balance) => {
 
 const formElement = document.querySelector("#login");
 
-formElement.addEventListener("submit", (event) => {
+formElement.addEventListener("submit", async (event) => {
   event.preventDefault();
+  try {
+    let withdrawAmount = document.getElementById("withdraw").value;
 
-  validatePIN()
-    .then((response) => {
-      console.log(response);
+    const validateResponse = await validatePIN();
+    const withdrawed = await withDrawMoney(
+      withdrawAmount,
+      validateResponse.data.balance
+    );
 
-      let accountInfo = document.getElementById("account-info");
-      accountInfo.innerHTML = `
-        <div>Account Name: <strong> ${response.data.name} </strong> </div>
-        <div>Balance: <strong>Rp${response.data.balance} </strong> </div>
-        <br/>
-      `;
-      return response.data;
-    })
-    .then((account) => {
-      console.log(account);
-      let withdrawAmount = document.getElementById("withdraw").value;
-      withDrawMoney(withdrawAmount, account.balance)
-        .then((response) => {
-          console.log(response);
-          let accountInfo2 = document.getElementById("account-info2");
-          accountInfo2.innerHTML = `
-            <div>Account Name: <strong> ${response.data.name} </strong> </div>
-            <div>Balance: <strong>Rp${response.data.balance} </strong> </div>
-            <br/>
-          `;
-        })
-        .catch((err) => {
-          alert(err.message)
-          console.log(err);
-        });
-    })
-    .catch((err) => {
-      alert(err.message)
-      console.log(err);
-    });
+    let accountInfo = document.getElementById("account-info");
+    accountInfo.innerHTML = `
+          <div>Account Name: <strong> ${validateResponse.data.name} </strong> </div>
+          <div>Balance: <strong>Rp${validateResponse.data.balance} </strong> </div>
+          <br/>
+        `;
+
+    let accountInfo2 = document.getElementById("account-info2");
+    accountInfo2.innerHTML = `
+          <div>Account Name: <strong> ${withdrawed.data.name} </strong> </div>
+          <div>Balance: <strong>Rp${withdrawed.data.balance} </strong> </div>
+          <br/>
+        `;
+  } catch (error) {
+    alert(error.message);
+  }
+
 });
